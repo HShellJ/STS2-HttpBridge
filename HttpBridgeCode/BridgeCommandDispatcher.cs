@@ -2061,7 +2061,7 @@ internal static class BridgeCommandDispatcher
                     var ps = mi.GetParameters();
                     object[] args;
                     if (ps.Length == 0) args = System.Array.Empty<object>();
-                    else if (ps.Length == 1) args = new object[] { null };
+                    else if (ps.Length == 1) args = new object[] { null! };
                     else return false;
                     try
                     {

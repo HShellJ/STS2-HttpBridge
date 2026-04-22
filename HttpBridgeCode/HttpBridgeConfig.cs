@@ -53,8 +53,8 @@ internal class HttpBridgeConfig
             try
             {
                 string configPath = GetConfigPath();
-                string directory = Path.GetDirectoryName(configPath);
-                if (!Directory.Exists(directory))
+                string? directory = Path.GetDirectoryName(configPath);
+                if (directory != null && !Directory.Exists(directory))
                     Directory.CreateDirectory(directory);
 
                 string json = JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true });

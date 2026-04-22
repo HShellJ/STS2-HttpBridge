@@ -85,8 +85,10 @@ internal static class HttpBridgeStateManager
                 switch (roomType)
                 {
                     case RoomType.Combat:
-                        var combatState = BridgeStateExtractor.ExtractCombat(
-                            BridgeSingleton.CurrentPlayer, BridgeSingleton.CurrentCombatRoom);
+                        var player = BridgeSingleton.CurrentPlayer;
+                        var combatRoom = BridgeSingleton.CurrentCombatRoom;
+                        if (player == null || combatRoom == null) break;
+                        var combatState = BridgeStateExtractor.ExtractCombat(player, combatRoom);
                         if (combatState != null)
                             state["combat"] = combatState;
                         break;
@@ -103,20 +105,26 @@ internal static class HttpBridgeStateManager
                         break;
 
                     case RoomType.Shop:
-                        var shopState = BridgeStateExtractor.ExtractShop(BridgeSingleton.CurrentMerchantRoom);
+                        var merchantRoom = BridgeSingleton.CurrentMerchantRoom;
+                        if (merchantRoom == null) break;
+                        var shopState = BridgeStateExtractor.ExtractShop(merchantRoom);
                         if (shopState != null)
                             state["shop"] = shopState;
                         break;
 
                     case RoomType.RestSite:
-                        var restState = BridgeStateExtractor.ExtractRestSite(BridgeSingleton.CurrentRestSiteRoom);
+                        var restRoom = BridgeSingleton.CurrentRestSiteRoom;
+                        if (restRoom == null) break;
+                        var restState = BridgeStateExtractor.ExtractRestSite(restRoom);
                         if (restState != null)
                             state["restSite"] = restState;
                         break;
 
                     case RoomType.Treasure:
+                        var treasureRoom = BridgeSingleton.CurrentTreasureRoom;
+                        if (treasureRoom == null) break;
                         var treasureState = BridgeStateExtractor.ExtractTreasure(
-                            BridgeSingleton.CurrentTreasureRoom, BridgeSingleton.CurrentTreasureNode);
+                            treasureRoom, BridgeSingleton.CurrentTreasureNode);
                         if (treasureState != null)
                             state["treasure"] = treasureState;
                         break;

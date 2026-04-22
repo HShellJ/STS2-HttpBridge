@@ -29,14 +29,16 @@ public static class MainFile
             Logger.Info("Harmony PatchAll OK");
 
             BridgeTrace.Log("Initialize start");
-            // BridgeSnapshotWriter.RequestWrite("Initialize"); // Not needed for HTTP bridge
 
             // Install the main-thread dispatcher node so the background command reader
             // can marshal game-API calls back onto the engine main thread.
             BridgeMainThreadDispatcher.EnsureInstalled();
 
-            // Start HTTP server instead of file polling
+            // Start HTTP server
             HttpBridgeServer.Start();
+
+            // Register shutdown hook to stop HTTP server when the game process exits
+            AppDomain.CurrentDomain.ProcessExit += (_, _) => HttpBridgeServer.Stop();
 
             Logger.Info($"HttpBridge initialized. HTTP server should be starting on port 8080.");
         }
