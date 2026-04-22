@@ -1,0 +1,29 @@
+# Godot build output
+.godot/
+bin/
+obj/
+
+# Temp game files
+_temp_sts2/
+
+# IDE files
+*.user
+*.suo
+.vs/
+.vscode/
+.idea/
+*.swp
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# NuGet
+packages/
+
+# Local scripts (not part of the mod)
+deploy.bat
+build_and_deploy.bat
+test.bat
+test.sh
+test_api.py
