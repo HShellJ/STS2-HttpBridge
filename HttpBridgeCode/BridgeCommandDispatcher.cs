@@ -27,6 +27,9 @@ using MegaCrit.Sts2.Core.Nodes.Screens.Settings;
 using MegaCrit.Sts2.Core.Nodes.Screens.TreasureRoomRelic;
 using MegaCrit.Sts2.Core.Rewards;
 using MegaCrit.Sts2.Core.Rooms;
+using MegaCrit.Sts2.Core.Combat;
+using MegaCrit.Sts2.Core.GameActions;
+using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Runs;
 
 namespace STS2HttpBridge.HttpBridgeCode;
@@ -1804,14 +1807,33 @@ internal static class BridgeCommandDispatcher
         try
         {
             BugFDiagnostic.OnEnqueue(potion, target);
-            potion.EnqueueManualUse(target);
+
+            // Mirror PotionModel.EnqueueManualUse but bypass ActionQueueSynchronizer
+            // (single-player offline mode stalls on RequestEnqueue).
+            potion.AssertMutable();
+
+            // Invoke BeforeUse hook (private field on PotionModel).
+            var beforeUse = (Action?)typeof(PotionModel).GetField("BeforeUse",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic)
+                ?.GetValue(potion);
+            beforeUse?.Invoke();
+
+            bool isCombatInProgress = CombatManager.Instance?.IsInProgress ?? false;
+            var action = new UsePotionAction(potion, target, isCombatInProgress);
+            typeof(PotionModel).GetProperty("IsQueued")?.SetValue(potion, true);
+
+            var actionQueueSet = RunManager.Instance?.ActionQueueSet;
+            if (actionQueueSet == null)
+                throw new InvalidOperationException("ActionQueueSet unavailable");
+            actionQueueSet.EnqueueWithoutSynchronizing(action);
+
             ScheduleDeferredStateRefresh(2, "UsePotionResolve", includeCombat: true, includeRun: true);
             BridgeTrace.Log($"DispatchUsePotion slot={slotIndex} potion={potion.Id?.Entry ?? "<?>"} target={(target is null ? "<none>" : target.Name ?? "<?>")}");
             return ("ok", $"enqueued use of {potion.Id?.Entry ?? "potion"} (slot {slotIndex})");
         }
         catch (Exception ex)
         {
-            return ("error", $"PotionModel.EnqueueManualUse threw: {ex.Message}");
+            return ("error", $"UsePotion dispatch threw: {ex.Message}");
         }
     }
 

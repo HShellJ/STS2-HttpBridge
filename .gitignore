@@ -24,9 +24,23 @@ packages/
 # Local build override (machine-specific Sts2Path)
 Directory.Build.props
 
+# Python cache
+__pycache__/
+*.pyc
+
 # Local scripts (not part of the mod)
 deploy.bat
 build_and_deploy.bat
 test.bat
 test.sh
 test_api.py
+
+# Docx generation output
+Docx/
+
+# Documentation (auto-generated/collateral)
+docs/
+
+# Project readme and guide files
+README.md
+CLAUDE.md
