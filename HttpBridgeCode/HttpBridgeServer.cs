@@ -196,7 +196,6 @@ internal static class HttpBridgeServer
         {
             writer.Write(message);
         }
-        response.Close();
     }
 
     internal static readonly JsonSerializerOptions JsonOptions = new()
@@ -215,7 +214,6 @@ internal static class HttpBridgeServer
         {
             await writer.WriteAsync(json);
         }
-        response.Close();
     }
 
     internal static async Task<T?> ReadJsonRequest<T>(HttpListenerRequest request)
